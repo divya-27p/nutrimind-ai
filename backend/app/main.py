@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.supabase_client import supabase
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -31,3 +32,19 @@ def health_check():
     return {
         "status": "healthy",
     }
+@app.get("/health/supabase")
+def supabase_health_check():
+    try:
+        response = supabase.storage.list_buckets()
+
+        return {
+            "status": "healthy",
+            "service": "supabase",
+            "bucket_count": len(response),
+        }
+    except Exception as error:
+        return {
+            "status": "unhealthy",
+            "service": "supabase",
+            "error": str(error),
+        }
